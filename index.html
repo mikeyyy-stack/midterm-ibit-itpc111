@@ -1,0 +1,170 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MidTerm-IBIT | Scholarship Monitoring</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script defer src="app.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <div>
+      <h1>ScholarTrack</h1>
+      <p>Scholarship Monitoring & Academic Compliance</p>
+    </div>
+    <div id="sessionBox">Not signed in</div>
+  </header>
+
+  <main class="container">
+    <section id="authPanel" class="panel">
+      <h2>Sign in</h2>
+      <p>Use your registered Supabase test account.</p>
+      <form id="loginForm" class="form-grid">
+        <label>Email
+          <input id="email" type="email" required autocomplete="username">
+        </label>
+        <label>Password
+          <input id="password" type="password" required
+                 autocomplete="current-password">
+        </label>
+        <button type="submit">Sign in</button>
+      </form>
+      <p id="authMessage" class="message"></p>
+    </section>
+
+    <section id="appPanel" hidden>
+      <nav class="tabs">
+        <button data-tab="dashboard">Dashboard</button>
+        <button data-tab="submit">Submit grades</button>
+        <button data-tab="records">Submissions</button>
+        <button data-tab="manage">Staff management</button>
+      </nav>
+
+      <section id="dashboard" class="view">
+        <h2>Dashboard</h2>
+        <div class="toolbar">
+          <label>Academic year
+            <select id="dashYear">
+              <option>2026-2027</option>
+            </select>
+          </label>
+          <label>Semester
+            <select id="dashSemester">
+              <option value="1st">1st Semester</option>
+              <option value="2nd">2nd Semester</option>
+              <option value="Summer">Summer</option>
+            </select>
+          </label>
+          <button id="refreshBtn" type="button">Refresh</button>
+        </div>
+        <div class="stats">
+          <article class="stat"><span>Assigned scholars</span><strong id="statAssigned">0</strong></article>
+          <article class="stat"><span>Pending verification</span><strong id="statPending">0</strong></article>
+          <article class="stat"><span>Compliant</span><strong id="statCompliant">0</strong></article>
+          <article class="stat"><span>With deficiency</span><strong id="statDeficient">0</strong></article>
+        </div>
+        <p id="dashboardMessage" class="message"></p>
+      </section>
+
+      <section id="submit" class="view" hidden>
+        <h2>Semester grade submission</h2>
+        <p class="muted">Enter your academic summary. Use a document reference, not an official grade upload.</p>
+        <form id="submissionForm" class="form-grid">
+          <label>Academic year
+            <input name="academic_year" value="2026-2027" required>
+          </label>
+          <label>Semester
+            <select name="semester" required>
+              <option value="1st">1st Semester</option>
+              <option value="2nd">2nd Semester</option>
+              <option value="Summer">Summer</option>
+            </select>
+          </label>
+          <label>GWA (1.00–5.00)
+            <input name="gwa" type="number" min="1" max="5" step="0.01" required>
+          </label>
+          <label>Enrolled units
+            <input name="enrolled_units" type="number" min="0" step="1" required>
+          </label>
+          <label>Failed subjects
+            <input name="failed_count" type="number" min="0" step="1" value="0" required>
+          </label>
+          <label>Incomplete grades
+            <input name="incomplete_count" type="number" min="0" step="1" value="0" required>
+          </label>
+          <label>Dropped subjects
+            <input name="dropped_count" type="number" min="0" step="1" value="0" required>
+          </label>
+          <label class="wide">Grade-document reference
+            <input name="evidence_ref" maxlength="500" required
+                   placeholder="e.g. REG-2026-001 or secure document URL">
+          </label>
+          <button type="submit">Submit grades</button>
+        </form>
+        <p id="submissionMessage" class="message"></p>
+      </section>
+
+      <section id="records" class="view" hidden>
+        <h2>Submission records</h2>
+        <div class="toolbar">
+          <input id="searchInput" placeholder="Search student ID or name">
+          <select id="programFilter">
+            <option value="">All programs</option>
+            <option value="MERIT">Merit Scholar</option>
+            <option value="COMMUNITY">Community Scholar</option>
+          </select>
+          <select id="complianceFilter">
+            <option value="">All compliance statuses</option>
+            <option>Not Evaluated</option>
+            <option>Compliant</option>
+            <option>With Deficiency</option>
+          </select>
+          <button id="searchBtn" type="button">Search</button>
+        </div>
+        <p id="recordsMessage" class="message"></p>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Scholar</th><th>Program</th><th>Semester</th>
+                <th>GWA</th><th>Verification</th><th>Compliance</th>
+                <th>Renewal</th><th>Reasons / Actions</th>
+              </tr>
+            </thead>
+            <tbody id="recordsBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="manage" class="view" hidden>
+        <h2>Staff management</h2>
+        <p class="muted">Staff only. Register an existing Auth user by their email, then assign a scholarship program.</p>
+        <form id="assignmentForm" class="form-grid">
+          <label>Scholar's registered email
+            <input name="scholar_email" type="email" required>
+          </label>
+          <label>Student ID
+            <input name="student_id" required>
+          </label>
+          <label>Full name
+            <input name="full_name" required>
+          </label>
+          <label>Scholarship program
+            <select name="program_id" required>
+              <option value="MERIT">Merit Scholar</option>
+              <option value="COMMUNITY">Community Scholar</option>
+            </select>
+          </label>
+          <button type="submit">Save scholar assignment</button>
+        </form>
+        <p id="manageMessage" class="message"></p>
+      </section>
+    </section>
+  </main>
+
+  <footer>MidTerm-IBIT · Systems Analysis and Design · Synthetic records only</footer>
+</body>
+</html>
